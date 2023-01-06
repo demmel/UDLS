@@ -5,6 +5,7 @@ import librosa as li
 from os import makedirs, path
 from tqdm import tqdm
 import numpy as np
+import random
 
 
 def dummy_load(name):
@@ -153,7 +154,14 @@ class SimpleDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         (input, label) = self.env[self.index[index + self.offset]]
+
         if self.transforms is not None:
+            rng_state = random.getstate()
+            np_rng_state = np.random.get_state()
             input = self.transforms(input)
+
+            random.setstate(rng_state)
+            np.random.set_state(np_rng_state)
             label = self.transforms(label)
+
         return (input, label)
